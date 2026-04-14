@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import opentype from 'opentype.js';
 
 export type AnimationPreset = 'typewriter' | 'calligraphy' | 'flash' | 'ghost' | 'explosion' | 'fadeInUp' | 'sequentialWipe';
-export type SvgEffect = 'none' | 'glow' | 'shadow' | 'liquid' | 'neon' | 'glitch' | 'emboss' | 'fire' | 'holographic' | 'extrude' | 'distort' | 'twist' | 'kaleidoscope';
+export type SvgEffect = 'none' | 'glow' | 'shadow' | 'liquid' | 'neon' | 'glitch' | 'emboss' | 'fire' | 'holographic' | 'extrude' | 'distort' | 'twist' | 'kaleidoscope' | 'outline' | 'erosion' | 'xray' | 'water' | 'fractal' | 'smear';
 
 interface TextAnimatorProps {
   text: string;
@@ -112,14 +112,12 @@ export function TextAnimator({
 
         if (!isMounted) return;
 
-        const actualLetterSpacing = letterSpacing * fontSize;
-
         // Calculate text width to center it or adjust viewBox
-        const textWidth = font.getAdvanceWidth(text, fontSize, { letterSpacing: actualLetterSpacing });
+        const textWidth = font.getAdvanceWidth(text, fontSize, { letterSpacing });
         const x = (800 - textWidth) / 2; // Center horizontally in 800px width
         const y = 130; // Baseline
 
-        const paths = font.getPaths(text, x > 0 ? x : 50, y, fontSize, { letterSpacing: actualLetterSpacing });
+        const paths = font.getPaths(text, x > 0 ? x : 50, y, fontSize, { letterSpacing });
         const pathDArray = paths.map(p => p.toPathData(5));
         
         if (textWidth > 700) {
@@ -194,7 +192,9 @@ export function TextAnimator({
 
           {/* Filters */}
           <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation={Math.max(1, effectIntensity / 10)} result="blur" />
+            <feGaussianBlur stdDeviation={Math.max(1, effectIntensity / 10)} result="blur">
+              <animate attributeName="stdDeviation" values={`${Math.max(1, effectIntensity / 10)};${Math.max(1, effectIntensity / 8)};${Math.max(1, effectIntensity / 10)}`} dur="2s" repeatCount="indefinite" />
+            </feGaussianBlur>
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -204,13 +204,17 @@ export function TextAnimator({
             <feDropShadow dx={effectIntensity / 10} dy={effectIntensity / 10} stdDeviation={Math.max(0, effectIntensity / 15)} floodColor="#000" floodOpacity="0.7" />
           </filter>
           <filter id="liquid" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise">
+              <animate attributeName="baseFrequency" values="0.02;0.025;0.02" dur="3s" repeatCount="indefinite" />
+            </feTurbulence>
             <feDisplacementMap in="SourceGraphic" in2="noise" scale={effectIntensity} xChannelSelector="R" yChannelSelector="G" />
           </filter>
           <filter id="neon" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(0.1, effectIntensity / 25)} result="blur1" />
             <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(1, effectIntensity / 8)} result="blur2" />
-            <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(2, effectIntensity / 4)} result="blur3" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(2, effectIntensity / 4)} result="blur3">
+              <animate attributeName="stdDeviation" values={`${Math.max(2, effectIntensity / 4)};${Math.max(2, effectIntensity / 3)};${Math.max(2, effectIntensity / 4)};${Math.max(2, effectIntensity / 6)};${Math.max(2, effectIntensity / 4)}`} dur="0.15s" repeatCount="indefinite" />
+            </feGaussianBlur>
             <feMerge>
               <feMergeNode in="blur3" />
               <feMergeNode in="blur2" />
@@ -219,8 +223,14 @@ export function TextAnimator({
             </feMerge>
           </filter>
           <filter id="glitch" x="-20%" y="-20%" width="140%" height="140%">
-            <feOffset dx={effectIntensity / 5} dy={-effectIntensity / 5} in="SourceGraphic" result="red-shift" />
-            <feOffset dx={-effectIntensity / 5} dy={effectIntensity / 5} in="SourceGraphic" result="blue-shift" />
+            <feOffset dx={effectIntensity / 5} dy={-effectIntensity / 5} in="SourceGraphic" result="red-shift">
+              <animate attributeName="dx" values={`0;${effectIntensity / 5};0;-${effectIntensity / 5};0`} dur="0.2s" repeatCount="indefinite" calcMode="discrete" />
+              <animate attributeName="dy" values={`0;-${effectIntensity / 5};0;${effectIntensity / 5};0`} dur="0.3s" repeatCount="indefinite" calcMode="discrete" />
+            </feOffset>
+            <feOffset dx={-effectIntensity / 5} dy={effectIntensity / 5} in="SourceGraphic" result="blue-shift">
+              <animate attributeName="dx" values={`0;-${effectIntensity / 5};0;${effectIntensity / 5};0`} dur="0.25s" repeatCount="indefinite" calcMode="discrete" />
+              <animate attributeName="dy" values={`0;${effectIntensity / 5};0;-${effectIntensity / 5};0`} dur="0.15s" repeatCount="indefinite" calcMode="discrete" />
+            </feOffset>
             <feMerge>
               <feMergeNode in="red-shift" />
               <feMergeNode in="blue-shift" />
@@ -231,11 +241,15 @@ export function TextAnimator({
             <feConvolveMatrix order="3,3" kernelMatrix={`3 0 0 0 -1 0 0 0 -${Math.max(1, effectIntensity / 10)}`} preserveAlpha="true" />
           </filter>
           <filter id="fire" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.4" numOctaves="2" result="noise" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.4" numOctaves="2" result="noise">
+              <animate attributeName="baseFrequency" values="0.01 0.4;0.015 0.5;0.01 0.4" dur="0.5s" repeatCount="indefinite" />
+            </feTurbulence>
             <feDisplacementMap in="SourceGraphic" in2="noise" scale={effectIntensity * 1.5} xChannelSelector="R" yChannelSelector="G" />
           </filter>
           <filter id="holographic" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence type="fractalNoise" baseFrequency={Math.max(0.001, effectIntensity / 1000)} numOctaves="1" result="noise" />
+            <feTurbulence type="fractalNoise" baseFrequency={Math.max(0.001, effectIntensity / 1000)} numOctaves="1" result="noise">
+              <animate attributeName="baseFrequency" values={`${Math.max(0.001, effectIntensity / 1000)};${Math.max(0.001, effectIntensity / 800)};${Math.max(0.001, effectIntensity / 1000)}`} dur="2s" repeatCount="indefinite" />
+            </feTurbulence>
             <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 3 -1" in="noise" result="coloredNoise" />
             <feComposite operator="in" in="coloredNoise" in2="SourceGraphic" result="holo" />
             <feBlend mode="screen" in="SourceGraphic" in2="holo" />
@@ -247,26 +261,83 @@ export function TextAnimator({
             <feDropShadow dx={effectIntensity / 5} dy={effectIntensity / 5} stdDeviation="0" floodColor="#000" floodOpacity="0.8" />
           </filter>
           <filter id="distort" x="-50%" y="-50%" width="200%" height="200%">
-            <feTurbulence type="turbulence" baseFrequency={Math.max(0.001, effectIntensity / 500)} numOctaves="3" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale={effectIntensity} xChannelSelector="R" yChannelSelector="G" />
+            <feTurbulence type="turbulence" baseFrequency={Math.max(0.001, effectIntensity / 500)} numOctaves="3" result="noise">
+              <animate attributeName="baseFrequency" values={`${Math.max(0.001, effectIntensity / 500)};${Math.max(0.001, effectIntensity / 400)};${Math.max(0.001, effectIntensity / 500)}`} dur="4s" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale={effectIntensity} xChannelSelector="R" yChannelSelector="G">
+              <animate attributeName="scale" values={`${effectIntensity};${effectIntensity * 1.5};${effectIntensity}`} dur="4s" repeatCount="indefinite" />
+            </feDisplacementMap>
           </filter>
           <filter id="twist" x="-50%" y="-50%" width="200%" height="200%">
-            <feTurbulence type="fractalNoise" baseFrequency={Math.max(0.001, 0.05 - (effectIntensity / 2000))} numOctaves="1" result="noise" />
+            <feTurbulence type="fractalNoise" baseFrequency={Math.max(0.001, 0.05 - (effectIntensity / 2000))} numOctaves="1" result="noise">
+              <animate attributeName="baseFrequency" values={`${Math.max(0.001, 0.05 - (effectIntensity / 2000))};${Math.max(0.001, 0.03 - (effectIntensity / 2000))};${Math.max(0.001, 0.05 - (effectIntensity / 2000))}`} dur="5s" repeatCount="indefinite" />
+            </feTurbulence>
             <feDisplacementMap in="SourceGraphic" in2="noise" scale={effectIntensity * 2} xChannelSelector="R" yChannelSelector="G" />
           </filter>
           <filter id="kaleidoscope" x="-50%" y="-50%" width="200%" height="200%">
             <feOffset dx={effectIntensity / 2} dy={effectIntensity / 2} in="SourceGraphic" result="o1" />
-            <feColorMatrix type="hueRotate" values="90" in="o1" result="c1" />
+            <feColorMatrix type="hueRotate" values="90" in="o1" result="c1">
+              <animate attributeName="values" values="0;360" dur="3s" repeatCount="indefinite" />
+            </feColorMatrix>
             <feOffset dx={-effectIntensity / 2} dy={-effectIntensity / 2} in="SourceGraphic" result="o2" />
-            <feColorMatrix type="hueRotate" values="180" in="o2" result="c2" />
+            <feColorMatrix type="hueRotate" values="180" in="o2" result="c2">
+              <animate attributeName="values" values="90;450" dur="3s" repeatCount="indefinite" />
+            </feColorMatrix>
             <feOffset dx={effectIntensity / 2} dy={-effectIntensity / 2} in="SourceGraphic" result="o3" />
-            <feColorMatrix type="hueRotate" values="270" in="o3" result="c3" />
+            <feColorMatrix type="hueRotate" values="270" in="o3" result="c3">
+              <animate attributeName="values" values="180;540" dur="3s" repeatCount="indefinite" />
+            </feColorMatrix>
             <feMerge>
               <feMergeNode in="c1" />
               <feMergeNode in="c2" />
               <feMergeNode in="c3" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
+          </filter>
+          <filter id="outline" x="-20%" y="-20%" width="140%" height="140%">
+            <feMorphology in="SourceAlpha" operator="dilate" radius={Math.max(1, effectIntensity / 20)} result="dilated" />
+            <feFlood floodColor="var(--stroke-color)" result="color" />
+            <feComposite in="color" in2="dilated" operator="in" result="outline" />
+            <feMerge>
+              <feMergeNode in="outline" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="erosion" x="-20%" y="-20%" width="140%" height="140%">
+            <feMorphology in="SourceGraphic" operator="erode" radius={Math.max(1, effectIntensity / 25)} />
+          </filter>
+          <filter id="xray" x="-20%" y="-20%" width="140%" height="140%">
+            <feColorMatrix type="matrix" values="-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0" in="SourceGraphic" result="inverted" />
+            <feGaussianBlur stdDeviation={Math.max(1, effectIntensity / 15)} result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="inverted" />
+            </feMerge>
+          </filter>
+          <filter id="water" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise">
+              <animate attributeName="baseFrequency" values="0.015;0.02;0.015" dur="4s" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale={effectIntensity / 2} xChannelSelector="R" yChannelSelector="G" result="displaced" />
+            <feSpecularLighting in="noise" surfaceScale="5" specularConstant="1" specularExponent="20" lightingColor="#ffffff" result="specular">
+              <fePointLight x="100" y="100" z="50" />
+            </feSpecularLighting>
+            <feComposite in="specular" in2="displaced" operator="in" result="specular" />
+            <feMerge>
+              <feMergeNode in="displaced" />
+              <feMergeNode in="specular" />
+            </feMerge>
+          </filter>
+          <filter id="fractal" x="-50%" y="-50%" width="200%" height="200%">
+            <feTurbulence type="fractalNoise" baseFrequency={Math.max(0.01, effectIntensity / 200)} numOctaves="4" result="noise">
+              <animate attributeName="baseFrequency" values={`${Math.max(0.01, effectIntensity / 200)};${Math.max(0.01, effectIntensity / 150)};${Math.max(0.01, effectIntensity / 200)}`} dur="6s" repeatCount="indefinite" />
+            </feTurbulence>
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 3 -1" in="noise" result="coloredNoise" />
+            <feComposite operator="in" in="coloredNoise" in2="SourceGraphic" result="fractal" />
+            <feBlend mode="color-dodge" in="SourceGraphic" in2="fractal" />
+          </filter>
+          <filter id="smear" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation={`${effectIntensity / 2} 0`} result="blur" />
           </filter>
         </defs>
 

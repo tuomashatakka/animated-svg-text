@@ -14,7 +14,13 @@ const FONTS = [
   { name: 'Bangers', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/bangers/Bangers-Regular.ttf' },
   { name: 'Press Start 2P', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/pressstart2p/PressStart2P-Regular.ttf' },
   { name: 'Cinzel', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/cinzel/Cinzel%5Bwght%5D.ttf' },
-  { name: 'Fredoka One', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/fredokaone/FredokaOne-Regular.ttf' },
+  { name: 'Fredoka', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/fredoka/Fredoka%5Bwdth,wght%5D.ttf' },
+  { name: 'Permanent Marker', url: 'https://raw.githubusercontent.com/google/fonts/main/apache/permanentmarker/PermanentMarker-Regular.ttf' },
+  { name: 'Amatic SC', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/amaticsc/AmaticSC-Regular.ttf' },
+  { name: 'Bebas Neue', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf' },
+  { name: 'Playfair Display', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/playfairdisplay/PlayfairDisplay%5Bwght%5D.ttf' },
+  { name: 'Orbitron', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/orbitron/Orbitron%5Bwght%5D.ttf' },
+  { name: 'Caveat', url: 'https://raw.githubusercontent.com/google/fonts/main/ofl/caveat/Caveat%5Bwght%5D.ttf' },
 ];
 
 const PRESETS: { label: string; value: AnimationPreset }[] = [
@@ -41,6 +47,12 @@ const EFFECTS: { label: string; value: SvgEffect }[] = [
   { label: 'Distort', value: 'distort' },
   { label: 'Twist', value: 'twist' },
   { label: 'Kaleidoscope', value: 'kaleidoscope' },
+  { label: 'Outline', value: 'outline' },
+  { label: 'Erosion', value: 'erosion' },
+  { label: 'X-Ray', value: 'xray' },
+  { label: 'Water', value: 'water' },
+  { label: 'Fractal', value: 'fractal' },
+  { label: 'Smear', value: 'smear' },
 ];
 
 const COLORS = [
